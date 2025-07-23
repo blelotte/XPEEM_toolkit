@@ -1,3 +1,10 @@
+# 
+_Output/
+1_Ni_undistrdd_processed_test/
+1_O_undistrdd_processed_test/
+Results_test/
+Processed_parameters_test.csv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
