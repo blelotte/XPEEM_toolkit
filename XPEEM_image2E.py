@@ -271,7 +271,8 @@ def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, labels:
         raise ValueError('Source image should be 2 Energy Images (i2) or Energy Stack (ES).')
     
     inputFd_path = utils.path_join(os.getcwd(),'_Input')
-    path_Output = utils.path_join(path_Project, name_Sample,f'_Results_{arg_SourceIm}/'+folder_Output)
+    outputFd_path = utils.path_join(os.getcwd(),'_Output')
+    path_Output = utils.path_join(outputFd_path, name_Sample, f'_Results_{arg_SourceIm}/'+folder_Output)
     
     # Load obtained broad masks from Excel
     list_ROIs, _, mask_ROIs = XPEEM.load_masks(name_Sample, kind='Material')
@@ -331,7 +332,7 @@ def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, labels:
 
             # Export peak-ratio map based on ES for multivariate analysis
             if arg_Analysis=='Ratio' and arg_SourceIm=='ES' :
-                path_MVA=utils.path_join(path_Project,'Stats_ES',name_Short,name_ROI)
+                path_MVA=utils.path_join(outputFd_path,'Stats_ES',name_Short,name_ROI)
                 os.makedirs(path_MVA,exist_ok=True)
                 
                 PeakRatioMaps, edge = load_ES_at_E(path_Dataset_A,row_args['E_A'],row_args['E_B'])
@@ -367,7 +368,7 @@ def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, labels:
                 NNMF_map=utils.open_image(path_NNMF_map)
                 
                 # >> SAVE FOR THE MVA ANALYSIS
-                path_MVA=utils.path_join(path_Project,'Stats_NNMF',name_Short,name_ROI)
+                path_MVA=utils.path_join(outputFd_path,'Stats_NNMF',name_Short,name_ROI)
                 os.makedirs(path_MVA,exist_ok=True)
                 
                 name_NNMFmap=str(row_args['index_MVA'])+'_'+edge+'_'+name_Chems[0]+'_E_'+str(row_args['E_A']).replace('.','_')+'.tif'
@@ -449,7 +450,7 @@ def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, labels:
             else :
                 # Run comparison of image A and B
                 variablesAB = {
-                    'path_Project': path_Project,                         # Project path.
+                    'path_Project': os.getcwd(),                         # Project path.
                     'Source_Image': arg_SourceIm,                     # ES or 2E
                     'name_Sample': name_Sample,                        # Ex: Uncycled
                     'name_Short': name_Short,                     # Ex: Uncy
@@ -471,7 +472,7 @@ def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, labels:
 
                 if row_args["Process_rev"] :
                     variablesBA = {
-                        'path_Project': path_Project,
+                        'path_Project': os.getcwd(),
                         'Source_Image': arg_SourceIm,
                         'name_Sample': name_Sample,
                         'name_Short': name_Short,

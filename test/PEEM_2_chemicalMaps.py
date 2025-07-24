@@ -29,7 +29,7 @@ def test():
     Uncycled
     _______________________________________________________________________________"""
     
-    sample='Uncy'
+    sample='dsA'
     shiftPlot=0
     ROI_list, label_list, mask_list_broad = XPEEM.load_masks(sample,loadAll_bool=True)
     

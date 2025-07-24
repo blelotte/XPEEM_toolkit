@@ -94,10 +94,10 @@ def align_images(SampleDirectory, reference_image_name, sample,params="1;10;10;0
     
     if reference_image_name[0] :
         if int(params[0])==0 or rectify :
-            target_image1edge = utils.path_join(basedir, f'_Input/refImages/{sample}/Raw_undistrddEdge',reference_image_name[0]+'.tif',dt='f')
+            target_image1edge = utils.path_join(basedir, f'_Input/0_refImages/{sample}/Raw_undistrddEdge',reference_image_name[0]+'.tif',dt='f')
             assert os.path.exists(target_image1edge)
         elif int(params[0])==1  or int(params[0])==2:
-            target_image1edge = utils.path_join(basedir, f'_Input/refImages/{sample}/Raw_undistrdd',reference_image_name[0]+'.tif',dt='f')
+            target_image1edge = utils.path_join(basedir, f'_Input/0_refImages/{sample}/Raw_undistrdd',reference_image_name[0]+'.tif',dt='f')
             assert os.path.exists(target_image1edge)
         params1 = params + ',' + target_image1edge
         if ve==8:
@@ -125,9 +125,9 @@ def align_images(SampleDirectory, reference_image_name, sample,params="1;10;10;0
         TwoEnergies = [f for f in os.listdir(twoenergiesfolder) if (not('_aligned' in f) and not('--' in f) and not('DIV' in f) and not ('_undistrdd' in f) and not ('_indrtrsf' in f) and not ('_drtrsf' in f) and not ('_filtered' in f) and not '.tif' in f )] 
         
         if int(params[0])==0 or rectify:
-            target_image2edge = utils.path_join(basedir,f'_Input/refImages/{sample}/2E_undistrddEdge',reference_image_name[1]+'.tif',dt='f')
+            target_image2edge = utils.path_join(basedir,f'_Input/0_refImages/{sample}/2E_undistrddEdge',reference_image_name[1]+'.tif',dt='f')
         if int(params[0])==1 or int(params[0])==2:
-            target_image2edge = utils.path_join(basedir,f'_Input/refImages/{sample}/2E_undistrdd',reference_image_name[1]+'.tif',dt='f')
+            target_image2edge = utils.path_join(basedir,f'_Input/0_refImages/{sample}/2E_undistrdd',reference_image_name[1]+'.tif',dt='f')
 
 
         params2 = params + ','+ target_image2edge
@@ -175,9 +175,8 @@ def load_masks(sample_name: str, sheet_name: Optional[str] = 'maskParams', loadA
     assert isinstance(sheet_name,str), 'The sheet name should be a string.'
     assert isinstance(loadAll_bool,bool), ''
       
-    inputFd_path = utils.path_join(os.getcwd(),'_Input',dt='d')
-    
-    # Read excel file
+    # Read excel file     
+    inputFd_path = utils.path_join(os.getcwd(),'_Input',dt='d')    
     argFile_path = utils.path_join(inputFd_path,'1_args_masks.xlsx',dt='f')
     sheetMasks_df = pd.read_excel(argFile_path,sheet_name=sheet_name)
     
@@ -189,7 +188,7 @@ def load_masks(sample_name: str, sheet_name: Optional[str] = 'maskParams', loadA
     # loop through each row (except header) and load image
     for index, row in sheetMasks_df.iterrows():
         if (row['Sample'] == sample_name) and ((row['Load'] or loadAll_bool) and (row['Kind']==kind or kind is None)):
-            masks_path = utils.path_join(inputFd_path,'masks',sample_name,row['Material'],row['Mask'],dt='f')
+            masks_path = utils.path_join(inputFd_path,'1_masks',sample_name,row['Material'],row['Mask'],dt='f')
             masks_list.append(utils.open_image(masks_path))
             maskROIs_name = row['ROI_name']
             maskLegends_name = row['Legend']

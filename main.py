@@ -21,6 +21,8 @@ scripts = [
             'test/PEEM_0_align.py',
             'test/PEEM_1_process_2E.py',
             'test/PEEM_1_process_ES.py',
+            'test/PEEM_2_chemicalMaps.py',
+            'test/PEEM_3_correlation.py',
             'test/PEEM_4_projection.py'
             ]
 
