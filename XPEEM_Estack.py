@@ -174,7 +174,7 @@ def normalise(x: List[float], y: List[float], x_std: float) -> List[float]:
     return y/y[x_std_ind]
 
 def load_params_excels(sheetName,edgeFd):
-    df = pd.read_excel(utils.path_join(os.getcwd(),'_Input/arguments.xlsx',dt='f'),sheet_name=sheetName)
+    df = pd.read_excel(utils.path_join(os.getcwd(),'_Input/1_args_ES.xlsx',dt='f'),sheet_name=sheetName)
 
     # Remove rows that contain '--' in any column
     df = df[~df.apply(lambda row: row.astype(str).str.contains('--').any(), axis=1)]

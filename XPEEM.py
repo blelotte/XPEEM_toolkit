@@ -377,7 +377,7 @@ def find_Eshift(edgeFd_path: str, stackFd_name: str, calcMask_xy: np.ndarray, na
     if not os.path.isdir(stackFd_path): raise ValueError('The directory does not exist:'+stackFd_path)    
 
     #Load raw images Estack in ndarray.
-    (n_x,n_y,n_z),E_z,I0_z,I_xyz,_=ES.load_Estack(stackFd_path)
+    (n_x,n_y,n_z),E_z,I0_z,I_xyz,_=ES.load_Estack(edgeFd_path,stackFd_path)
     
     # Bound the Estack to the supplied energy range for the peak.
     boundI_xyz = I_xyz
