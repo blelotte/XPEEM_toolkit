@@ -137,7 +137,7 @@ def test_PEEM_image():
     assert isinstance(result[2], float)
     assert isinstance(result[3], float)
 
-def find_2E(path_Project, row_args):
+def find_2E(row_args):
     """
     Enumerates through all the "Edge" folders, opens the 2_energy folder for each sample to compare,
     and calls the function PEEM_2i_comp_save.
@@ -146,18 +146,17 @@ def find_2E(path_Project, row_args):
     In the name_Edge folder, one should find the processed E-stack folder and the 2_energies folder.
 
     Args:
-        path_Project (str): The project directory with the script, raw data and OriginPlots.
         row_args (pd.Series): A row from a DataFrame containing the 'name_Sample', 'name_ChemAB', 'name_ChemBA', 'path_imA', and 'path_imB' fields.
 
     Returns:
-        None
+        paths_2E_AB (list): the path of the two images to process.
     """
     paths_2E_AB = []
     
     pathIms = [f'{row_args["path_imA"]}', f'{row_args["path_imB"]}']
     name_Sample = row_args['name_Sample']
     
-    path_Dataset=utils.path_join(path_Project,name_Sample)    
+    path_Dataset=utils.path_join(os.getcwd(),name_Sample)    
 
     # Find the 2_energies folder corresponding to this ID.
     for pathIm in pathIms:
@@ -176,9 +175,9 @@ def find_2E(path_Project, row_args):
                             
     assert len(paths_2E_AB)==2, f'The images of the sample {name_Sample} {pathIms[0]} and {pathIms[1]} were been found or there are too many possibilities.'
 
-    return paths_2E_AB, row_args, path_Project
+    return paths_2E_AB
 
-def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, path_Project: str, labels: list[str] = ['A', 'B']):
+def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, labels: list[str] = ['A', 'B']):
     """
     Compare two sets of images.
 
@@ -187,7 +186,6 @@ def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, path_Pr
     folder_2E_A (str):              Path to the first set of images.
     folder_2E_B (str):              Path to the second set of images.
     row_args (pd.Series):           A row from a DataFrame containing the 'Sample', 'name_ChemAB', 'name_ChemBA', 'path_imA', and 'path_imB' fields.
-    path_Project : (str):           The project directory with the script, raw data and OriginPlots.
     labels (list of str, optional): Labels for the two sets of images. Default is ['A', 'B'].
 
     Returns
@@ -272,13 +270,14 @@ def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, path_Pr
     else: 
         raise ValueError('Source image should be 2 Energy Images (i2) or Energy Stack (ES).')
     
+    inputFd_path = utils.path_join(os.getcwd(),'_Input')
     path_Output = utils.path_join(path_Project, name_Sample,f'_Results_{arg_SourceIm}/'+folder_Output)
     
     # Load obtained broad masks from Excel
     list_ROIs, _, mask_ROIs = XPEEM.load_masks(name_Sample, kind='Material')
     
     # Path to the Excel file
-    path_comparisons_list = utils.path_join(path_Project,'comparisons_list.xlsx',dt='f')
+    path_comparisons_list = utils.path_join(inputFd_path,'2_args_Maps.xlsx',dt='f')
     
     # If the Excel file exists, read it into a DataFrame. Otherwise, create an empty DataFrame.
     identifiers=['name_Sample', 'name_ROI', 'name_ChemAB']

@@ -159,7 +159,7 @@ def load_masks(sample_name: str, sheet_name: Optional[str] = 'maskParams', loadA
         
     sample (str): The sample, i.e. "Uncy".
     
-    sheet_name (str, optional): The name of the sheet in the 'arguments.xlsx' file. 
+    sheet_name (str, optional): The name of the sheet in the '1_args_masks.xlsx' file. 
     Defaults to 'maskParams'.
     
     loadAll_bool (bool, optional): Set the argument "load" in the sheet.
@@ -175,10 +175,10 @@ def load_masks(sample_name: str, sheet_name: Optional[str] = 'maskParams', loadA
     assert isinstance(sheet_name,str), 'The sheet name should be a string.'
     assert isinstance(loadAll_bool,bool), ''
       
-    inputFd_path=utils.path_join(os.getcwd(),'_Input',dt='d')
+    inputFd_path = utils.path_join(os.getcwd(),'_Input',dt='d')
     
-    # read excel file
-    argFile_path=utils.path_join(inputFd_path,'2_arguments_ES.xlsx',dt='f')
+    # Read excel file
+    argFile_path = utils.path_join(inputFd_path,'1_args_masks.xlsx',dt='f')
     sheetMasks_df = pd.read_excel(argFile_path,sheet_name=sheet_name)
     
     # create empty list for image names
@@ -1020,7 +1020,7 @@ def export_Estack(edgeFd_path,folder, segm: Optional[Tuple[List[np.ndarray], Lis
 
 # TODO Make simple example 
 # TODO Split in simpler tasks - peakRatioMap, 2imageCorrelation, calculate_nnmfMap
-def calculate_chemicalMap(path_ComparisonsFile, sample):
+def calculate_chemicalMap(sample):
     """
     Iterates through an Excel sheet with the list of XPEEM 2E_image to compare.
     Loads the analysis arguments defined in the Excel document, and calls the function PEEM_2i_find_Imgs.
@@ -1033,19 +1033,18 @@ def calculate_chemicalMap(path_ComparisonsFile, sample):
     """
     
     # Open the Excel file
-    df = pd.read_excel(path_ComparisonsFile, sheet_name='args_comparisons')
+    inputFd_path = utils.path_join(os.getcwd(),'_Input')
+    paramsFile_path = utils.path_join(inputFd_path,'2_args_maps.xlsx')
+    df = pd.read_excel(paramsFile_path, sheet_name='mapsParams')
     df = df[sample == df['name_Sample']]
-    
-    # Initialise basedir
-    path_Project=os.path.dirname(path_ComparisonsFile)
-    
+        
     # Iterate through the rows of the DataFrame
     for _, row in df[df['Process']].iterrows():
 
         # Call find_folders_and_compare with the sample, alias, and peakIDcouple
-        (paths_2E_AB, row_args, path_Project)=E2.find_2E(path_Project, row)
+        paths_2E_AB=E2.find_2E(row)
         
-        E2.create_outputFd(paths_2E_AB[0], paths_2E_AB[1], row_args, path_Project, labels=[ID.replace('_', '') for ID in paths_2E_AB])
+        E2.create_outputFd(paths_2E_AB[0], paths_2E_AB[1], row, labels=[ID.replace('_', '') for ID in paths_2E_AB])
         
 
 def prepare_MLMap(samplefolder,mask=None,ROI=None,filename='Mantis_density.tif'):
