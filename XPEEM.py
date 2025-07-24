@@ -39,7 +39,6 @@ from typing import List, Optional, Tuple
 np.seterr(all='warn') # to be able to handle warnings
 
 # Folder/system management
-import psutil
 import sys
 sys.path.append('D:/Documents/a PSI/Data/Data analysis/spyder/Modules')
 sys.path.append('D:/Documents/a PSI/Data/Data analysis/spyder/Modules/savitzkygolay-master')
@@ -60,12 +59,6 @@ import hdbscan
 from scipy.spatial import Voronoi, voronoi_plot_2d
 from matplotlib.colors import to_rgb
 from matplotlib.patches import Patch
-
-def is_program_running(program_name):
-    for proc in psutil.process_iter(['name']):
-        if proc.info['name'] == program_name:
-            return True
-    return False
 
 # Handle image inputs and outputs
 import imageio as io # Unified I/O for images, volumes, GIFs, videos 
@@ -185,7 +178,7 @@ def load_masks(sample_name: str, sheet_name: Optional[str] = 'maskParams', loadA
     inputFd_path=utils.path_join(os.getcwd(),'_Input',dt='d')
     
     # read excel file
-    argFile_path=utils.path_join(inputFd_path,'arguments.xlsx',dt='f')
+    argFile_path=utils.path_join(inputFd_path,'2_arguments_ES.xlsx',dt='f')
     sheetMasks_df = pd.read_excel(argFile_path,sheet_name=sheet_name)
     
     # create empty list for image names
