@@ -221,6 +221,7 @@ def process_2E(directory: str, file, IDs: Tuple[int, int, int], dim: Tuple[int, 
     """
     # Change format of bounds
     bounds = np.array(bounds)
+
     # >> Dimensions
     (p,q,n,m)=dim
     
@@ -228,7 +229,6 @@ def process_2E(directory: str, file, IDs: Tuple[int, int, int], dim: Tuple[int, 
     # >> Load E and I0.
     # Assuming 'directory' is your current directory
     sample_folder = os.path.dirname(os.path.dirname(directory))
-    # Find the 'file_E'
     E, I0 = utils.load_E_I0(sample_folder,processed=True)
     
     # >> Initialize names
@@ -242,7 +242,7 @@ def process_2E(directory: str, file, IDs: Tuple[int, int, int], dim: Tuple[int, 
         if suffix == 'undistrdd':
             im_i,E_i,name_in_sequence=utils.open_sequence(utils.path_join(directory,folder[i],dt='d'),returnEnergy=True)
             E_i=np.round(np.nanmean(E_i,axis=0),decimals=1)
-            k = ES.find_closest_index(E,E_i)
+            k = utils.find_closest_index(E,E_i)
             E[i]=E_i
         elif suffix == 'filtered':
             im_i,name_in_sequence=utils.open_sequence(utils.path_join(directory,folder[i],dt='d'),returnEnergy=False)

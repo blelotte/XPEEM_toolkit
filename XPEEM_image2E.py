@@ -272,7 +272,7 @@ def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, labels:
     
     inputFd_path = utils.path_join(os.getcwd(),'_Input')
     outputFd_path = utils.path_join(os.getcwd(),'_Output')
-    path_Output = utils.path_join(outputFd_path, name_Sample, f'_Results_{arg_SourceIm}/'+folder_Output)
+    outputFd2E_path = utils.path_join(outputFd_path, name_Sample, f'{arg_SourceIm}/'+folder_Output)
     
     # Load obtained broad masks from Excel
     list_ROIs, _, mask_ROIs = XPEEM.load_masks(name_Sample, kind='Material')
@@ -311,7 +311,7 @@ def create_outputFd(path_2E_A: str, path_2E_B: str, row_args: pd.Series, labels:
         bool_isIncluded=(name_ROI in name_ROIs or name_ROIs == 'Any' and not name_ROI == 'All')
         
         if bool_isIncluded and not arg_Analysis=='Quantification' :
-            path_Output_ROI = utils.path_join(path_Output, name_ROI)
+            path_Output_ROI = utils.path_join(outputFd2E_path, name_ROI)
             os.makedirs(path_Output_ROI, exist_ok=True)
             
             # Create a subfolder with the names of the two files being compared
@@ -516,7 +516,7 @@ def PEEM_2i_comp2(df, images_A, images_B, mask_ROI, params):
     mask : np.ndarray or similar
         Mask to apply to the images.
     params : dict
-        Dictionary containing the 'path_Project', 'name_Sample', 'name_ROI', 'name_Chem', 'comparison_label', 'labels', and fields.
+        Dictionary containing the 'name_Sample', 'name_ROI', 'name_Chem', 'comparison_label', 'labels', and fields.
 
     Returns
     -------
@@ -527,10 +527,11 @@ def PEEM_2i_comp2(df, images_A, images_B, mask_ROI, params):
 
     arg_SourceIm = params['Source_Image']
     name_Sample = params['name_Sample']
+    sampleFd_path = utils.path_join(os.getcwd(),name_Sample)
+    outputFd_path = utils.path_join(os.getcwd(),'_Output')
+    outputFd2E_path = utils.path_join(outputFd_path, name_Sample, f'{arg_SourceIm}')
     name_Short = params['name_Short']
     name_ROI = params['name_ROI']
-    path_Project = params['path_Project']
-    path_Dataset = utils.path_join(path_Project,name_Sample)
     complabel = params['name_comparison']
     name_Chem = params['name_Chem']
     Analysis = params['Analysis']
@@ -587,7 +588,7 @@ def PEEM_2i_comp2(df, images_A, images_B, mask_ROI, params):
     
         # >> EXPORT COMPUTED IMAGES TO FILES
         # > Initialise base directory
-        path_output_ROI = utils.path_join(path_Dataset, f'_Results_{arg_SourceIm}',f'{arg_SourceIm}_2E_ratio', name_ROI, complabel)
+        path_output_ROI = utils.path_join(outputFd2E_path,f'{arg_SourceIm}_2E_ratio', name_ROI, complabel)
         abbimAB = list(image_dict.keys())
         namelistAB=[f'{abbr}_{complabel}_{name_ROI}' for abbr in abbimAB]
         imagesAB = list(image_dict.values())
@@ -619,7 +620,7 @@ def PEEM_2i_comp2(df, images_A, images_B, mask_ROI, params):
         # > Loop over folders and find the aligned, processed "_undistrdd_processed_test" E-stacks.
         listpath=[]
         listfolder=[]
-        for dirpath, dirnames, filenames in os.walk(path_Dataset):
+        for dirpath, dirnames, filenames in os.walk(sampleFd_path):
             for dirname in dirnames:
                 # > Take the preprocessed stack
                 if '_undistrdd_processed_test' in dirname:
@@ -628,15 +629,15 @@ def PEEM_2i_comp2(df, images_A, images_B, mask_ROI, params):
                     
         # > Initialize edge variables
         for dirpath, dirname in zip(listpath,listfolder):
-            folder_Project_Dataset_Edge = os.path.basename(dirpath)
-            path_Project_Dataset_Edge=utils.path_join(path_Dataset,folder_Project_Dataset_Edge)
-            folder_Estack = dirname
-            path_Project_Dataset_Edge_Estack=utils.path_join(path_Project_Dataset_Edge,folder_Estack)
-            edge=utils.find_edge(folder_Project_Dataset_Edge,exp='SIM')
+            edgeFd_name = os.path.basename(dirpath)
+            edge=utils.find_edge(edgeFd_name,exp='SIM')
+            edgeFd_path=utils.path_join(sampleFd_path,edgeFd_name)
+            stackFd_name = dirname
+            path_Project_Dataset_Edge_Estack=utils.path_join(edgeFd_path,stackFd_name)
    
             # > Load stack and energy
             D_xyE=utils.open_sequence(path_Project_Dataset_Edge_Estack)[0]
-            E=utils.load_E_I0(path_Project_Dataset_Edge,processed=True)[0]
+            E=utils.load_E_I0(edgeFd_path,processed=True)[0]
             
             # > Apply ROI mask and validity criteria to the peak-ratio map
             peak_ratio_map=image_dict["div_A_B"]
@@ -701,7 +702,7 @@ def PEEM_2i_comp2(df, images_A, images_B, mask_ROI, params):
 
         # >> BUILD OVERLAY IMAGE A, B
         # > Stack image in the overlay and save
-        pathComp = utils.path_join(path_Project, name_Sample,f'_Results_{arg_SourceIm}',f'{arg_SourceIm}_2E_coloc', name_ROI, complabel,'Overlay')
+        pathComp = utils.path_join(outputFd2E_path,f'{arg_SourceIm}_2E_ratio', name_ROI, complabel,'Overlay')
         rkA, rkB = im_dict['RkA'], im_dict['RkB']
 
         nameOverlay=f'OverlayAB_{complabel}_{name_ROI}.tif'
@@ -745,7 +746,7 @@ def PEEM_2i_comp2(df, images_A, images_B, mask_ROI, params):
         # >> APPLY HUE MASKS ON ALL PEEM STACKS + EXPORT ORIGIN
         listpath=[]
         listfolder=[]
-        for dirpath, dirnames, filenames in os.walk(path_Dataset):
+        for dirpath, dirnames, filenames in os.walk(sampleFd_path):
             for dirname in dirnames:
                 # > Take the preprocessed stack
                 if '_undistrdd_processed_test' in dirname:
@@ -754,15 +755,17 @@ def PEEM_2i_comp2(df, images_A, images_B, mask_ROI, params):
                     
         # > Initialize edge variables
         for dirpath, dirname in zip(listpath,listfolder):
-            folder_Project_Dataset_Edge = os.path.basename(dirpath)
-            path_Project_Dataset_Edge=utils.path_join(path_Dataset,folder_Project_Dataset_Edge)
-            folder_Estack = dirname
-            path_Project_Dataset_Edge_Estack=utils.path_join(path_Project_Dataset_Edge,folder_Estack)
-            edge=utils.find_edge(folder_Project_Dataset_Edge,exp='SIM')
-   
+            
+            edgeFd_name = os.path.basename(dirpath)
+            edge=utils.find_edge(edgeFd_name,exp='SIM')
+            edgeFd_path=utils.path_join(sampleFd_path,edgeFd_name)
+            
+            stackFd_name = dirname
+            stackFd_path=utils.path_join(edgeFd_path,stackFd_name)
+            
             # > Load stack and energy
-            D_xyE=utils.open_sequence(path_Project_Dataset_Edge_Estack)[0]
-            E=utils.load_E_I0(path_Project_Dataset_Edge,processed=True)[0]
+            D_xyE=utils.open_sequence(stackFd_path)[0]
+            E=utils.load_E_I0(edgeFd_path,processed=True)[0]
             
             # > Multiply with mask and convert to ndarray
             D_xyE_red=np.where(redmask[:, :,np.newaxis],D_xyE,0)
@@ -775,7 +778,7 @@ def PEEM_2i_comp2(df, images_A, images_B, mask_ROI, params):
             ax, AV_D_xyE_mag=utils.scatter_mean_stack(E,D_xyE_mag,'Magenta',ax,plot=test,refPeak_E=Eref)[0:2]
             ax, AV_D_xyE_blue=utils.scatter_mean_stack(E,D_xyE_blue,'Blue',ax,plot=test,refPeak_E=Eref)[0:2]
             
-            dircomp=utils.path_join(path_Project, name_Sample,f'_Results_{arg_SourceIm}',f'{arg_SourceIm}_2E_coloc', name_ROI, complabel)
+            dircomp=utils.path_join(outputFd2E_path,f'{arg_SourceIm}_2E_coloc', name_ROI, complabel)
             np.savetxt(utils.path_join(dircomp,arg_SourceIm+'_'+name_ROI[:3]+'_'+name_Chem+'_'+edge[:2]+name_Sample[:4]+'.csv',dt='f'), np.vstack((E,[AV_D_xyE_red,AV_D_xyE_mag,AV_D_xyE_blue])).T, delimiter=";", header='Energy;Red;Magenta;Blue')
             
             if ExportOrigin :

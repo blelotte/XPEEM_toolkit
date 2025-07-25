@@ -340,7 +340,7 @@ def open_sequence(sequence_path: str, images_format:str= ".tif", returnEnergy:bo
         if returnEnergy :
             # Read the energy
             # Open the TIFF file
-            with TiffFile(path_join(sequence_path.replace('_undistrdd','--'), imname,dt='f')) as tif:
+            with TiffFile(path_join(sequence_path, imname,dt='f')) as tif:
                 # Get the metadata
                 metadata = tif.imagej_metadata
             
