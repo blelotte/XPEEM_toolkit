@@ -47,6 +47,7 @@ from .file_plugins import file_tif
 from .file_plugins import file_stk
 from .file_plugins import file_csv
 
+#XPEEM linked imports
 import XPEEM
 import OriginPlot as oplt
 import XPEEM_utils as utils
@@ -147,10 +148,13 @@ def save_spa(wdir, odir, filename, stk, anlz, png, pdf, svg):
 
         if png == 1:
             filepath = os.path.join(wdir, filename)
+            
+            # Lelotte_B edit
             mask=np.array(Image.open(filepath.replace('.tif','_mask.tif')))
             unique_values = np.unique(mask)
-            assert np.array_equal(unique_values, [0, 1]) or np.array_equal(unique_values, [1]), "Broad mask contains values other than 0 and 1"
-            tsmapimage*=mask
+            assert np.array_equal(unique_values, [0, 255]) or np.array_equal(unique_values, [1]), "Broad mask contains values other than 0 and 1"
+            mask=mask==255
+            tsmapimage[~mask]=0
             
             fileName_img = SaveFileName+"TSmap_" +str(i+1)+".tif"
             img1 = Image.fromarray(tsmapimage)
@@ -356,8 +360,8 @@ def save_ca(wdir, odir, filename, stk, anlz, png, pdf, svg):
         if os.path.exists(msk_path):
             mask=np.array(Image.open(filepath.replace('.tif','_mask.tif')))
             unique_values = np.unique(mask)
-            assert np.array_equal(unique_values, [0, 1]) or np.array_equal(unique_values, [1]), "Broad mask contains values other than 0 and 1"
-            mask = mask.astype(bool)
+            assert np.array_equal(unique_values, [0, 255]) or np.array_equal(unique_values, [255]), "Broad mask contains values other than 0 and 1"
+            mask = mask==255
         else:
             mask=np.ones_like(indvclusterimage,dtype=bool)
 
@@ -1008,17 +1012,19 @@ def batch_mode():
             
     if run_nnma == 1 : 
         if ca_calculated == 1:
-
+            
+            # Lelotte_B edit
             mask=np.array(Image.open(filepath.replace('.tif','_mask.tif')))
             unique_values = np.unique(mask)
-            assert np.array_equal(unique_values, [0, 1]) or np.array_equal(unique_values, [1]), "Broad mask contains values other than 0 and 1"
+            assert np.array_equal(unique_values, [0, 255]) or np.array_equal(unique_values, [255]), "Broad mask contains values other than 0 and 1"
+            fltmsk=(mask.T).flatten()==255
             
             n_components=len(nnma_components)
-            initmat='FastICA'
+            initmat='Ratio'
             
             nnmat=nnma.nnma(stk)
             if initmat == 'Cluster':
-                nnmat.setClusterSpectra(anlz.clusterspectra[nnma_components,:],np.transpose(anlz.target_svd_maps[:,:,nnma_components],(1,0,2))[mask.T==1,:])
+                nnmat.setClusterSpectra(anlz.clusterspectra[nnma_components,:],np.transpose(anlz.target_svd_maps[:,:,nnma_components],(1,0,2))[mask.T==255,:])
             elif initmat == 'Ratio':
                 print('initmat Ratio')
                 ratioimage_tiff = Image.open(filepath.replace('.tif','_ratioimages.tif'))
@@ -1035,7 +1041,6 @@ def batch_mode():
                 except EOFError:
                     # End of file reached
                     pass
-                fltmsk=(mask.T).flatten()==1
                 ratioimages=np.transpose(np.array(ratioimages),axes=(2,1,0)).reshape(-1,n_components)
                 ratioimages=ratioimages[fltmsk,:]
 

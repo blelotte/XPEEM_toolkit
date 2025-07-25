@@ -918,7 +918,7 @@ def process_Estack(edgeFd_path:str, stackFd_name:str, save_stack:bool=False,
             # Save calcultation images
             utils.save_stack_as_image_sequence(n_l3,calcALL_xyl3,output_path,calcALL_labels,save_stack=save_stack)
 
-def export_Estack(edgeFd_path,folder, segm: Optional[Tuple[List[np.ndarray], List[str], List[str]]] = None, Originplot: Optional[str] = None,shift=0,Epre_edge=None,Eref_peak=None,normArg=-1,samplelabel='PEEM',mantisfolder='') :
+def export_Estack(edgeFd_path,folder,test:Optional[bool]=False, ROIs: Optional[Tuple[List[np.ndarray], List[str], List[str]]] = None, Originplot: Optional[str] = None,shift=0,Epre_edge=None,Eref_peak=None,normArg=-1,samplelabel='PEEM',mantisfolder='') :
     """
     >> Load stack (if argument provided)
     ________________________________________________________________________"""
@@ -927,12 +927,13 @@ def export_Estack(edgeFd_path,folder, segm: Optional[Tuple[List[np.ndarray], Lis
     
     # Check if the broad-mask directory exists
     masksFd_path=utils.path_join(edgeFd_path, 'Masks')
+    mask_name='testMask' if test else 'broadMask'
     if os.path.exists(masksFd_path):
         # Get a list of all files in the directory
         mask_files = os.listdir(masksFd_path)
     
         # Filter the list to only include .tif files
-        tif_files = [f for f in mask_files if f.endswith('.tif') and 'broadMask' in f]
+        tif_files = [f for f in mask_files if f.endswith('.tif') and mask_name in f]
     
         # If there is exactly one .tif file
         if len(tif_files) == 1:
@@ -946,58 +947,56 @@ def export_Estack(edgeFd_path,folder, segm: Optional[Tuple[List[np.ndarray], Lis
             # Convert the image data to a numpy array
             mask = np.array(mask_image)==255
         else:
-            raise ValueError('There is not exactly one broadmask.tif file in the directory.')
+            raise ValueError(f'There is not exactly one {mask_name}.tif file in the directory.')
             
     # > Raw stack
     print(utils.path_join(edgeFd_path,stackFd_name))
     (n_x,n_y,n_z),rawE_z,_,I_xyz,_=ES.load_Estack(edgeFd_path,utils.path_join(edgeFd_path,rawStackFd_name))
-    # raw_stack,ImNames=utils.open_sequence(utils.path_join(edgeFd_path,folder))
-    # Eraw=utils.load_E_I0(edgeFd_path)[0]
     ax,raw_av,raw_std,raw_label=utils.scatter_mean_stack(rawE_z,I_xyz,'Raw_stack',None,mask_xy=mask,norm=1)
     plt.show()
 
     # > Processed stack
-    stack,ImNames=utils.open_sequence(utils.path_join(edgeFd_path,stackFd_name))
-    (n,m,p)=stack.shape
-    E = utils.load_E_I0(edgeFd_path,processed=True)[0]
+    D_xyz,ImNames=utils.open_sequence(utils.path_join(edgeFd_path,stackFd_name))
+    D_kz=utils.flatten_Estack(D_xyz,mask)
+    E_z = utils.load_E_I0(edgeFd_path,processed=True)[0]
 
-    ax,segm_av,segm_std,label=utils.scatter_mean_stack(E,stack,'Processed stack',None,mask_xy=mask,norm=-1)
+    ax,meanD_z,stdD_z,label=utils.scatter_mean_stack(E_z,D_kz,'Processed stack',None,norm=-1)
     plt.show()
 
     """
     >> Segmentation (if argument provided)
     ________________________________________________________________________"""
-    if isinstance(segm,list) :
-        mask_list=segm[0]
-        n_segm=len(mask_list)
-
-        # Initialise
-        mask_list=np.array(mask_list)==255
-        segm_av=np.zeros((p,n_segm*3))
+    if isinstance(ROIs,list) :
+        # TODO Add an assert for mask of different sizes.
+        mask_ROIs_kl=(np.array(ROIs[0])==255)[:,mask]
+        legend_ROIs=ROIs[1]
+        name_ROIs=ROIs[2]
+        n_ROIs=len(name_ROIs)
+        ROIs_meanD_z=np.zeros((n_z,n_ROIs*3))
 
         
-        # Label for Origin (supports reach text)        
-        segm_label=segm[1]
-        # Short name for the mask 
-        segm_alias=segm[2]
-        segm_alias_list=[]
+        legendCompleted_ROIs=[]
         
         # Create stack for each input segmentation  
-        for i in range(0,n_segm):
-            mask=mask_list[i,:,:]
+        for i in range(0,n_ROIs):
+            mask_ki=mask_ROIs_kl[i,:]
 
             if i == 0: 
                 ax=None
                 ax2=False
-            ax,segm_av[:,3*i],segm_std,segm_alias_i=utils.scatter_mean_stack(E,stack,segm_alias[i],ax,ax2=ax2,isav=False,norm=normArg,mask_xy=mask,preEdge_E_range=Epre_edge,refPeak_E=Eref_peak)
-            segm_av[:,3*i+1]=segm_std[0]
-            segm_av[:,3*i+2]=segm_std[1]
-            segm_alias_list.append(segm_alias_i)
-            segm_alias_list.append(segm_alias_i+' residual below')
-            segm_alias_list.append(segm_alias_i+' residual above')
-        data = np.column_stack((E,segm_av))
-        np.savetxt(utils.path_join(edgeFd_path,f'calculatedImages{mantisfolder}','Segmentation_Spectra.csv',dt='f'), data, delimiter=";", header=f'Energy;{";".join(segm_alias_list)}', comments='')
+            ax,ROIs_meanD_z[:,3*i],segm_std,segm_alias_i=utils.scatter_mean_stack(E_z,D_kz[mask_ki],name_ROIs[i],ax,ax2=ax2,isav=False,norm=normArg,preEdge_E_range=Epre_edge,refPeak_E=Eref_peak)
+            ROIs_meanD_z[:,3*i+1]=segm_std[0]
+            ROIs_meanD_z[:,3*i+2]=segm_std[1]
+            legendCompleted_ROIs.append(segm_alias_i)
+            legendCompleted_ROIs.append(segm_alias_i+' residual below')
+            legendCompleted_ROIs.append(segm_alias_i+' residual above')
+        data = np.column_stack((E_z,ROIs_meanD_z))
+        np.savetxt(utils.path_join(edgeFd_path,f'calculatedImages{mantisfolder}','Segmentation_Spectra.csv',dt='f'), data, delimiter=";", header=f'Energy;{";".join(legendCompleted_ROIs)}', comments='')
     else:
+        ROIs_meanD_z=np.zeros((n_z,3))
+        ROIs_meanD_z[:,0]=meanD_z[0]
+        ROIs_meanD_z[:,1]=stdD_z[0]
+        ROIs_meanD_z[:,2]=stdD_z[1]
         segm_label=[label]
         segm_alias="All"
 
@@ -1013,9 +1012,9 @@ def export_Estack(edgeFd_path,folder, segm: Optional[Tuple[List[np.ndarray], Lis
         
         # Background substracted folder
         oplt.AddSheetOrigin(loc,filename,rawE_z,raw_av,['']+segm_label,foldername='PEEM_raw',bookname=Originplot+'_1--_raw',ShNam=edge+'_raw')
-        oplt.AddSheetOrigin(loc,filename,E,segm_av[:,::2],['']+segm_label*2,foldername='PEEM_processed',bookname=Originplot+'_1',ShNam=edge)
-        for i in range(n_segm) :
-            oplt.AddSheetOrigin(loc,filename,E,[segm_av[:,2*i],segm_av[:,2*i+1],segm_av[:,2*i+2]],['',samplelabel,samplelabel,samplelabel],foldername=f'PEEMSummary/{edge}',bookname=edge+' Sum--mary_1',ShNam=segm_alias[i],shiftCol=shift)
+        oplt.AddSheetOrigin(loc,filename,E_z,ROIs_meanD_z[:,::2],['']+segm_label*2,foldername='PEEM_processed',bookname=Originplot+'_1',ShNam=edge)
+        for i in range(n_ROIs) :
+            oplt.AddSheetOrigin(loc,filename,E_z,[ROIs_meanD_z[:,2*i],ROIs_meanD_z[:,2*i+1],ROIs_meanD_z[:,2*i+2]],['',samplelabel,samplelabel,samplelabel],foldername=f'PEEMSummary/{edge}',bookname=edge+' Sum--mary_1',ShNam=segm_alias[i],shiftCol=shift)
 
 # TODO Make simple example 
 # TODO Split in simpler tasks - peakRatioMap, 2imageCorrelation, calculate_nnmfMap
@@ -1045,27 +1044,28 @@ def calculate_chemicalMap(sample):
         
         E2.create_outputFd(paths_2E_AB[0], paths_2E_AB[1], row, labels=[ID.replace('_', '') for ID in paths_2E_AB])
         
-
+# TODO use image sequence as source directly
 def prepare_MLMap(samplefolder,mask=None,ROI=None,filename='Mantis_density.tif'):
+    # Load mask
     base_name, extension = os.path.splitext(filename)
     path=utils.path_join(samplefolder,'Mantis')
     imfile=utils.path_join(path,filename,dt='f')
     with TiffFile(imfile) as tif:
         images = tif.asarray()
-    
     summ_ims=np.expand_dims(np.nanmean(images,axis=0),0)
     _, minmask = utils.image_well_defined(summ_ims,axis=0)
     if isinstance(mask,np.ndarray) :
         unique_values = np.unique(mask)
         assert np.array_equal(unique_values, [0, 255]) or np.array_equal(unique_values, [255]), "Broad mask contains values other than 0 and 255"
-        mask = minmask * mask / 255
+        mask = minmask * mask
     else: 
         mask = Image.open(utils.path_join(samplefolder, 'broad_material_mask/broadmask.tif',dt='f'))
         unique_values = np.unique(mask)
         assert np.array_equal(unique_values, [0, 255]) or np.array_equal(unique_values, [255]), "Broad mask contains values other than 0 and 255"
 
-        mask=minmask * mask / 255
+        mask=minmask * mask
     
+    # Add ROI to file name
     if ROI : 
         ROIname='_'+ROI
     else:
@@ -1075,11 +1075,9 @@ def prepare_MLMap(samplefolder,mask=None,ROI=None,filename='Mantis_density.tif')
     pathmask=utils.path_join(path,f'{base_name}{ROIname}_mask.tif',dt='f')
     io.imsave(pathmask, mask.astype(np.uint8))    
 
-    nonzerodelements=images[:,mask == 1]
+    nonzerodelements=images[:,mask == 255]
     meandensity=np.nanmean(nonzerodelements,axis=1)
     images[:,mask == 0]=meandensity[:,np.newaxis]
-    
-
     
     imfile=utils.path_join(path,f'{base_name}{ROIname}.tif',dt='f')
     imwrite(imfile, images, photometric='minisblack')
@@ -1103,7 +1101,7 @@ def prepare_MLMap(samplefolder,mask=None,ROI=None,filename='Mantis_density.tif')
         
     return f'{base_name}{ROIname}.tif'
     
-def calculate_MLMap(new_work_dir, new_n_clusters, nnma_components, filename='Mantis_density.tif', sample='XPEEM',s=0,Eselect=''):
+def calculate_MLMap(new_work_dir, new_n_clusters, nnma_components, filename='Mantis_density.tif', sample='XPEEM',s=0):
 
     # Get the ROI name    
     base_name, extension = os.path.splitext(filename)

@@ -113,7 +113,7 @@ class nnma():
 
         for i in range(0,self.kNNMA):
             plt.figure(figsize=(10, 6))
-            plt.imshow(self.Temp[i,:].reshape(self.nCols,self.nRows).T)
+            plt.imshow(self.Temp[i,:].reshape(self.nRows,self.nCols).T)
             plt.title(title+str(i))
             plt.show()
 
@@ -229,8 +229,8 @@ class nnma():
 
         # Apply mask to OD
         if isinstance(self.msk,np.ndarray):
-            self.nPixels = int(np.sum (self.msk))
-            self.fltmsk=(self.msk.T).flatten()==1
+            self.fltmsk=(self.msk.T).flatten()==255
+            self.nPixels = np.sum(self.fltmsk.astype(np.int8))
             self.OD=self.OD[self.fltmsk,:]
         else:
             self.nPixels = int(self.nCols * self.nRows)
@@ -293,7 +293,6 @@ class nnma():
             self.mixmatrix=np.where((self.mixmatrix <= 0) | np.isnan(self.mixmatrix),randommatrix,self.mixmatrix)
             self.mixmatrix=np.where((self.mixmatrix > (self.median_ratio*5)[:,np.newaxis]),(self.median_ratio*5)[:,np.newaxis],self.mixmatrix)
 
-            
             # Inline plot of the input ratio.
             plt.figure(figsize=(10, 6))
             plt.plot(self.energies,self.muCluster)

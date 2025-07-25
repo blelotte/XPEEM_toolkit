@@ -27,7 +27,7 @@ print('Current working directory: ' + os.getcwd())
 
 def test():
 
-    XPEEM.calculate_chemicalMap('dsA')
+    # XPEEM.calculate_chemicalMap('dsA')
     
     sample='dsA'
     shiftPlot=0
@@ -36,19 +36,14 @@ def test():
     """ Ni L-edge """
     directory=utils.path_join(os.getcwd(),sample,"Ni_dsA")
     
-    filename=XPEEM.prepare_MLMap(directory,mask=mask_list_broad[ROI_list.index('NCM')],ROI='NCM',filename='test_density.tif')
-    XPEEM.calculate_MLMap(directory, 3, "1,2", sample=sample,s=shiftPlot,Eselect='851.3,853.1',filename=filename)
+    # filename=XPEEM.prepare_MLMap(directory,mask=mask_list_broad[ROI_list.index('NCM')],ROI='NCM',filename='test_density.tif')
+    # XPEEM.calculate_MLMap(directory, 3, "1,2", sample=sample,s=shiftPlot,filename=filename)
 
     """ O L-edge """
     directory=utils.path_join(os.getcwd(),sample,"O_dsA")
     
     filename=XPEEM.prepare_MLMap(directory,mask=mask_list_broad[ROI_list.index('NCM')],ROI='NCM',filename='test_density.tif')
-    XPEEM.calculate_MLMap(directory, 5, "0,1,2,3,4",filename=filename, sample=sample,s=shiftPlot,Eselect='529.9,533.1,528.2,536.3,540.3')
+    XPEEM.calculate_MLMap(directory, 5, "0,1,2,3,4",filename=filename, sample=sample,s=shiftPlot)
 
 if __name__ == '__main__':
-    """
-    Export
-    _______________________________________________________________________________"""
     test()
-
-        
