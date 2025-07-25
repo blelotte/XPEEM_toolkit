@@ -277,7 +277,7 @@ def fit_preEdge_spectrum(E_z: np.ndarray,Algnd_II0_kz: np.ndarray, inputParams, 
         meanII0_z = np.nanmean(
             np.where(calcMask_k[:, np.newaxis], Algnd_II0_kz, np.nan),
             axis=0
-        )
+            )
     else:
         meanII0_z = np.nanmean(Algnd_II0_kz, axis=0)
 
@@ -306,7 +306,7 @@ def fit_preEdge_spectrum(E_z: np.ndarray,Algnd_II0_kz: np.ndarray, inputParams, 
     print("Background slope:")
     print(f"{bkgSlope:.3f} counts/eV")
 
-    return E_0,bkgSlope,B_k
+    return E_0, bkgSlope, B_k
 
 def bkg_substraction_spectrum(E_z: np.ndarray,II0_kz:np.ndarray,params:pd.DataFrame,edge:str,
                               slope=None,intercept_k=None,E_0=None)->Tuple[np.ndarray,np.ndarray,List[Union[np.ndarray,List[str]]]]:

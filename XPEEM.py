@@ -996,7 +996,7 @@ def export_Estack(edgeFd_path,folder, segm: Optional[Tuple[List[np.ndarray], Lis
             segm_alias_list.append(segm_alias_i+' residual below')
             segm_alias_list.append(segm_alias_i+' residual above')
         data = np.column_stack((E,segm_av))
-        np.savetxt(utils.path_join(edgeFd_path,f'Results{mantisfolder}','Segmentation_Spectra.csv',dt='f'), data, delimiter=";", header=f'Energy;{";".join(segm_alias_list)}', comments='')
+        np.savetxt(utils.path_join(edgeFd_path,f'calculatedImages{mantisfolder}','Segmentation_Spectra.csv',dt='f'), data, delimiter=";", header=f'Energy;{";".join(segm_alias_list)}', comments='')
     else:
         segm_label=[label]
         segm_alias="All"
@@ -1033,7 +1033,7 @@ def calculate_chemicalMap(sample):
     
     # Open the Excel file
     inputFd_path = utils.path_join(os.getcwd(),'_Input')
-    paramsFile_path = utils.path_join(inputFd_path,'2_args_maps.xlsx')
+    paramsFile_path = utils.path_join(inputFd_path,'2_args_maps.xlsx',dt='f')
     df = pd.read_excel(paramsFile_path, sheet_name='mapsParams')
     df = df[sample == df['name_Sample']]
         
@@ -1116,7 +1116,7 @@ def calculate_MLMap(new_work_dir, new_n_clusters, nnma_components, filename='Man
     os.makedirs(utils.path_join(mantisfolder,outputdir), exist_ok=True)
     
     # Read the settings file
-    with open('Mantis_batch_settings.txt', 'r') as f:
+    with open('_Input/Mantis_batch_settings.txt', 'r') as f:
         lines = f.readlines()
 
     # Replace the parameters
