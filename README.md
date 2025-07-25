@@ -28,10 +28,6 @@ cd XPEEM_toolkit
 
 Add the repo to your PYTHONPATH (so scripts can import xpeem_toolkit):
 ```
-# On macOS/Linux
-export PYTHONPATH="$PWD:$PYTHONPATH"
-
-# On Windows PowerShell
 setx PYTHONPATH "$PWD;$env:PYTHONPATH"
 ```
 
@@ -56,13 +52,13 @@ Copy the contents of imagej_macros/ into your ImageJ plugins directory:
 #### 2E / E-stack processing (Savitzky–Golay filters)
 Add savitzkygolay-master to your Python path:
 ```
-export PYTHONPATH="/path/to/savitzkygolay-master:$PYTHONPATH"
+setx PYTHONPATH "C:\path\to\savitzkygolay-master;%PYTHONPATH%"
 ```
 
 #### PCA / ICA / NNMF for processed E-stack (using a modified version of mantis)
 Add the modified mantis_xray included in this repo to your python path:
 ```
-export PYTHONPATH="/path/to/mantis_xray:$PYTHONPATH"
+setx PYTHONPATH "C:\path\to\savitzkygolay-master;%PYTHONPATH%"
 ```
 #### OriginPro templates
 If you use Origin to generate plots, copy the Origin_templates/ folder into your Origin user directory:
@@ -75,4 +71,3 @@ All processing steps are driven from the top‐level main.py. Once you’ve set 
 ```
 python main.py
 ```
-This will display usage instructions and available command-line options (e.g. input folder, output folder, processing modes).
