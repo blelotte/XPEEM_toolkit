@@ -10,8 +10,8 @@ Lelotte, B.; Siller, V.; Pelé, V.; Jordy, C.; Gubler, L.; El Kazzi, M.; Vaz, C.
 
 ## Prerequisites
 - Python 3.8+
-- (Optional) [OriginPro](https://www.originlab.com/) for plotting  
 - [ImageJ](https://imagej.nih.gov/ij/) for image alignment macros  
+- (Optional) [OriginPro](https://www.originlab.com/) for plotting
 
 This script was developped on Windows 10 with Spyder 3.9 and interactive python.
 We cannot guarantee complete functionality for users from different operating system or development environment. 
