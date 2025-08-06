@@ -157,7 +157,7 @@ def load_masks(sample_name: str, sheet_name: Optional[str] = 'maskParams', loadA
 
     Parameters:
         
-    sample (str): The sample, i.e. "Uncy".
+    sample_name (str): The sample name, i.e. "Uncy".
     
     sheet_name (str, optional): The name of the sheet in the '1_args_masks.xlsx' file. 
     Defaults to 'maskParams'.
@@ -224,7 +224,6 @@ def process_2E(directory: str, file, IDs: Tuple[int, int, int], dim: Tuple[int, 
 
     # >> Dimensions
     (p,q,n,m)=dim
-    
     
     # >> Load E and I0.
     # Assuming 'directory' is your current directory

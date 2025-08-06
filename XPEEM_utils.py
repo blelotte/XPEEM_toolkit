@@ -83,8 +83,8 @@ def path_join(*args: str, dt: str = 'd', sort: str = 'str_operations') -> str:
     Raises:
     ValueError: If any component is an absolute path (starts with a slash).
     """
-    for i,arg in enumerate(args):
-        if arg[0]=='/' and i>0:
+    for arg in args:
+        if arg.startswith('/') :
             raise ValueError('in path_join \n Does not handle absolute path. \n Remove the backslash.')
     path=os.path.join(*args)
     path=path_rectify(path,dt,sort=sort)
@@ -291,7 +291,7 @@ def load_E_I0(edgeFd_path, processed=False):
             if 'mean_spectra' in f and f.endswith('.csv'):
                 csvFile_name = f
                 break      
-        assert csvFile_name is not None
+        assert csvFile_name is not None, 'Could not find the mean_spectra csv file. \n Please first run process_Estack first.'
         csvFile_path= path_join(edgeFd_path,csvFile_name,dt='f')
         
         # Load the energy and I0 column into a ndarray
