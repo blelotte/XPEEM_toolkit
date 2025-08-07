@@ -197,7 +197,7 @@ def load_masks(sample_name: str, sheet_name: Optional[str] = 'maskParams', loadA
         
     return ROIs_list , legends_list, masks_list
 
-# TODO set-up test
+# TODO set-up test, proof-read
 def process_2E(directory: str, file, IDs: Tuple[int, int, int], dim: Tuple[int, int, int, int], save_stack: bool = False,bounds=[0,10],suffix='undistrdd',std_bkg=True, shift=False,scale=[None,None]) -> None:
     """
     This function opens two sequences of PEEM micrographs, i.e. Energy 1, Energy 2.
