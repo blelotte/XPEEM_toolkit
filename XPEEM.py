@@ -996,8 +996,8 @@ def export_Estack(edgeFd_path,folder,test:Optional[bool]=False, ROIs: Optional[T
         ROIs_meanD_z[:,0]=meanD_z[0]
         ROIs_meanD_z[:,1]=stdD_z[0]
         ROIs_meanD_z[:,2]=stdD_z[1]
-        segm_label=[label]
-        segm_alias="All"
+        legend_ROIs=[label]
+        name_ROIs="All"
 
 
     """
@@ -1010,10 +1010,10 @@ def export_Estack(edgeFd_path,folder,test:Optional[bool]=False, ROIs: Optional[T
         filename='OriginPlots.opju'
         
         # Background substracted folder
-        oplt.AddSheetOrigin(loc,filename,rawE_z,raw_av,['']+segm_label,foldername='PEEM_raw',bookname=Originplot+'_1--_raw',ShNam=edge+'_raw')
-        oplt.AddSheetOrigin(loc,filename,E_z,ROIs_meanD_z[:,::2],['']+segm_label*2,foldername='PEEM_processed',bookname=Originplot+'_1',ShNam=edge)
+        # oplt.AddSheetOrigin(loc,filename,rawE_z,raw_av,['']+legend_ROIs,foldername='PEEM_raw',bookname=Originplot+'_1--_raw',ShNam=edge+'_raw')
+        # oplt.AddSheetOrigin(loc,filename,E_z,ROIs_meanD_z[:,::2],['']+legend_ROIs*2,foldername='PEEM_processed',bookname=Originplot+'_1',ShNam=edge)
         for i in range(n_ROIs) :
-            oplt.AddSheetOrigin(loc,filename,E_z,[ROIs_meanD_z[:,2*i],ROIs_meanD_z[:,2*i+1],ROIs_meanD_z[:,2*i+2]],['',samplelabel,samplelabel,samplelabel],foldername=f'PEEMSummary/{edge}',bookname=edge+' Sum--mary_1',ShNam=segm_alias[i],shiftCol=shift)
+            oplt.AddSheetOrigin(loc,filename,E_z,[ROIs_meanD_z[:,2*i],ROIs_meanD_z[:,2*i+1],ROIs_meanD_z[:,2*i+2]],['',samplelabel,samplelabel,samplelabel],foldername=f'PEEMSummary/{edge}',bookname=edge+' Sum--mary_1',ShNam=name_ROIs[i],shiftCol=shift)
 
 # TODO Make simple example 
 # TODO Split in simpler tasks - peakRatioMap, 2imageCorrelation, calculate_nnmfMap
